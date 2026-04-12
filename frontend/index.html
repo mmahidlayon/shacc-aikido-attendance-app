@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SHACC Attendance</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>🥋 SHACC Attendance</h1>
+
+    <div class="card">
+        <label>Student ID:</label>
+        <input type="number" id="studentId" placeholder="Enter your student ID">
+
+        <label>Notes:</label>
+        <input type="text" id="notes" placeholder="Optional notes">
+
+        <button onclick="recordAttendance()">✅ Record Attendance</button>
+        <button onclick="viewAttendance()">📊 View Attendance</button>
+    </div>
+
+    <div class="card">
+        <h3>Total Sessions: <span id="total">0</span></h3>
+        <ul id="attendanceList"></ul>
+    </div>
+
+    <script>
+        const BASE_URL = "http://127.0.0.1:8000";
+
+        async function recordAttendance() {
+            const studentId = document.getElementById("studentId").value;
+            const notes = document.getElementById("notes").value;
+
+            const response = await fetch(
+                `${BASE_URL}/attendance?student_id=${studentId}&notes=${notes}`,
+                {
+                    method: "POST"
+                }
+            );
+
+            const data = await response.json();
+            console.log(data);
+            alert("Attendance recorded!");
+        }
+
+        async function viewAttendance() {
+            const studentId = document.getElementById("studentId").value;
+
+            const response = await fetch(`${BASE_URL}/attendance/${studentId}`);
+            const data = await response.json();
+
+            const list = document.getElementById("attendanceList");
+            list.innerHTML = "";
+
+            document.getElementById("total").textContent = data.length;
+
+            data.forEach(record => {
+                const item = document.createElement("li");
+                item.textContent = `${record.session_date} - ${record.notes || "No notes"}`;
+                list.appendChild(item);
+            });
+        }
+    </script>
+
+</body>
+</html>
