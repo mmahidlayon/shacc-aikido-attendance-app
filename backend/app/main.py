@@ -56,12 +56,28 @@ def record_attendance(student_id: int, notes: str = "", db: Session = Depends(ge
 
 # ✅ Get Attendance by Student
 @app.get("/attendance/{student_id}")
-def get_attendance(student_id: int, db: Session = Depends(get_db)):
-    records = db.query(models.Attendance).filter(
-        models.Attendance.student_id == student_id
-    ).all()
+def get_attendance(
+    student_id: int,
+    date_from: date = None,
+    date_to: date = None,
+    db: Session = Depends(get_db)
+):
+    student = db.query(models.Student).filter(
+        models.Student.id == student_id
+    ).first()
 
-    return records
+    query = db.query(models.Attendance).filter(
+        models.Attendance.student_id == student_id,
+        models.Attendance.session_date >= student.rank_start_date
+    )
+
+    if date_from:
+        query = query.filter(models.Attendance.session_date >= date_from)
+
+    if date_to:
+        query = query.filter(models.Attendance.session_date <= date_to)
+
+    return query.all()
 
 #sign up if not yet registered
 @app.post("/signup")

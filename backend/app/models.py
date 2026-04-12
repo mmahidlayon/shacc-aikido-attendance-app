@@ -19,6 +19,7 @@ class Student(Base):
     full_name = Column(String, nullable=False)
     rank = Column(String, default="6th kyu")
     total_attendance = Column(Integer, default=0)
+    rank_start_date = Column(Date)
 
     user = relationship("User", back_populates="student")
     attendance_records = relationship("Attendance", back_populates="student")
