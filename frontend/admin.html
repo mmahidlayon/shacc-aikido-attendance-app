@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 700px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        button {
+            padding: 10px;
+            width: 100%;
+            margin-top: 5px;
+            cursor: pointer;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>👨‍🏫 Admin Dashboard</h1>
+<button onclick="logout()">🚪 Logout</button>
+
+<div class="card">
+    <h2>Students</h2>
+    <button onclick="loadStudents()">📋 Load Students</button>
+    <select id="studentSelect"></select>
+</div>
+
+<div class="card">
+    <h2>Attendance</h2>
+    <button onclick="viewAttendance()">📊 View Attendance</button>
+
+    <h3>Total Sessions: <span id="total">0</span></h3>
+    <ul id="attendanceList"></ul>
+</div>
+
+<script>
+const BASE_URL = "http://127.0.0.1:8000";
+
+// check login
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user || user.role !== "admin") {
+    alert("Unauthorized");
+    window.location.href = "login.html";
+}
+
+// logout
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+}
+
+// load students
+async function loadStudents() {
+    const response = await fetch(`${BASE_URL}/students`);
+    const students = await response.json();
+
+    const select = document.getElementById("studentSelect");
+    select.innerHTML = "";
+
+    students.forEach(student => {
+        const option = document.createElement("option");
+        option.value = student.id;
+        option.textContent = `${student.full_name} (ID: ${student.id})`;
+        select.appendChild(option);
+    });
+}
+
+// view attendance
+async function viewAttendance() {
+    const studentId = document.getElementById("studentSelect").value;
+
+    const response = await fetch(`${BASE_URL}/attendance/${studentId}`);
+    const data = await response.json();
+
+    const list = document.getElementById("attendanceList");
+    list.innerHTML = "";
+
+    document.getElementById("total").textContent = data.length;
+
+    data.forEach(record => {
+        const item = document.createElement("li");
+        item.textContent = `${record.session_date} - ${record.notes || "No notes"}`;
+        list.appendChild(item);
+    });
+}
+</script>
+
+</body>
+</html>
