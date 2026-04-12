@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SHACC Login</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🥋 SHACC Aikido</h1>
+
+<!-- LOGIN CARD -->
+<div class="card">
+    <h2>Login</h2>
+    <input id="loginUsername" placeholder="Username">
+    <input id="loginPassword" type="password" placeholder="Password">
+    <button onclick="login()">🔐 Login</button>
+</div>
+
+<div class="divider">OR</div>
+
+<!-- SIGNUP CARD -->
+<div class="card">
+    <h2>Sign Up</h2>
+    <input id="signupName" placeholder="Full Name">
+    <input id="signupUsername" placeholder="Username">
+    <input id="signupPassword" type="password" placeholder="Password">
+    <button onclick="signup()">📝 Sign Up</button>
+</div>
+
+<script>
+const BASE_URL = "http://127.0.0.1:8000";
+
+// SIGN UP
+async function signup() {
+    const full_name = document.getElementById("signupName").value;
+    const username = document.getElementById("signupUsername").value;
+    const password = document.getElementById("signupPassword").value;
+
+    const response = await fetch(
+        `${BASE_URL}/signup?username=${username}&password=${password}&full_name=${full_name}`,
+        { method: "POST" }
+    );
+
+    const data = await response.json();
+    alert(data.message || data.error);
+}
+
+// LOGIN
+async function login() {
+    const username = document.getElementById("loginUsername").value;
+    const password = document.getElementById("loginPassword").value;
+
+    const response = await fetch(
+        `${BASE_URL}/login?username=${username}&password=${password}`,
+        { method: "POST" }
+    );
+
+    const data = await response.json();
+
+    if (data.error) {
+        alert("Login failed");
+        return;
+    }
+
+    localStorage.setItem("user", JSON.stringify(data));
+
+    alert("Login successful!");
+
+    window.location.href = "student.html";
+}
+</script>
+
+</body>
+</html>
