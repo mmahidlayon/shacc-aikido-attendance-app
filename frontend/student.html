@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SHACC Student Dashboard</title>
+    <style>
+        body {
+            font-family: Arial;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 8px;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+        }
+
+        button {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🥋 Student Dashboard</h1>
+
+<button onclick="logout()">🚪 Logout</button>
+
+<div class="card">
+    <h3 id="welcome"></h3>
+</div>
+
+<div class="card">
+    <h2>Record Attendance</h2>
+    <input type="text" id="notes" placeholder="Optional notes">
+    <button onclick="recordAttendance()">✅ Record Attendance</button>
+</div>
+
+<div class="card">
+    <h2>Your Attendance</h2>
+    <button onclick="viewAttendance()">📊 View Attendance</button>
+
+    <h3>Total Sessions: <span id="total">0</span></h3>
+    <ul id="attendanceList"></ul>
+</div>
+
+<script>
+const BASE_URL = "http://127.0.0.1:8000";
+
+// 🔐 Get logged-in user
+const user = JSON.parse(localStorage.getItem("user"));
+
+// 🚫 If not logged in, go back to login
+if (!user) {
+    window.location.href = "login.html";
+}
+
+// Display welcome
+document.getElementById("welcome").textContent =
+    "Welcome Student ID: " + user.student_id;
+
+
+// ✅ Record Attendance
+async function recordAttendance() {
+    const notes = document.getElementById("notes").value;
+
+    const response = await fetch(
+        `${BASE_URL}/attendance?student_id=${user.student_id}&notes=${notes}`,
+        { method: "POST" }
+    );
+
+    const data = await response.json();
+    alert("Attendance recorded!");
+}
+
+
+// 📊 View Attendance
+async function viewAttendance() {
+    const response = await fetch(
+        `${BASE_URL}/attendance/${user.student_id}`
+    );
+
+    const data = await response.json();
+
+    const list = document.getElementById("attendanceList");
+    list.innerHTML = "";
+
+    document.getElementById("total").textContent = data.length;
+
+    data.forEach(record => {
+        const item = document.createElement("li");
+        item.textContent = `${record.session_date} - ${record.notes || "No notes"}`;
+        list.appendChild(item);
+    });
+}
+
+function logout() {
+    localStorage.removeItem("user");
+    window.location.href = "login.html";
+}
+
+console.log("Logged in user:", user);
+
+</script>
+
+</body>
+</html>
