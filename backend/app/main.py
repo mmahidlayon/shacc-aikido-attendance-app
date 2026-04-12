@@ -118,3 +118,8 @@ def login(username: str, password: str, db: Session = Depends(get_db)):
         "role": user.role,
         "student_id": student.id if student else None
     }
+
+@app.get("/students")
+def get_students(db: Session = Depends(get_db)):
+    students = db.query(models.Student).all()
+    return students
